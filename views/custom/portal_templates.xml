@@ -77,7 +77,7 @@
                         </div>
                     </t>
                     <t t-set="card_body">
-                        <form action="/my/maintenance_order/update" method="post">
+                        <form action="#" method="post" id="form_maintence">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <input type="hidden" name="id" t-att-value="maintenance_order.id"/>
                             <div class="row container">
@@ -126,10 +126,18 @@
                                 <div>
                                     <strong>Firma trabajador: </strong>
                                     <div class="signature-field" style="border-bottom: 1px solid #000; margin-bottom: 30px;">
-                                        <span t-field="maintenance_order.worker_signature" t-options='{"widget": "image", "size": (300, 100)}'/>
+                                        <span
+                                                t-field="maintenance_order.worker_signature"
+                                                t-options='{"widget": "image", "size": (300, 100)}'
+                                                t-att-class="'d-none' if not maintenance_order.worker_signature else ''"
+                                        />
+                                        <div id="signature-pad">
+
+                                        </div>
+
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalaccept">
-                                        Firmar trabajador
+                                    <button type="button" class="btn btn-primary" id="clear-signature-btn">
+                                        Limpiar
                                     </button>
                                 </div>
                                 <div>
@@ -144,7 +152,7 @@
                             </div>
                             <div class="row container mt-3">
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                    <button type="button" class="btn btn-primary" id="sheet_submit_button" t-att-maintence-id="maintenance_order.id">Guardar</button>
                                 </div>
                             </div>
                         </form>
@@ -168,9 +176,9 @@
                                     </li>
                                 </ul>
                             </p>
-                            <t t-call="portal.signature_form">
-                                <t t-set="call_url" t-value="'/my/maintenance_order/worker/sign/' + str(maintenance_order.id)"/>
-                            </t>
+<!--                            <t t-call="portal.signature_form">-->
+<!--                                <t t-set="call_url" t-value="'/my/maintenance_order/worker/sign/' + str(maintenance_order.id)"/>-->
+<!--                            </t>-->
                         </main>
                     </form>
                 </div>

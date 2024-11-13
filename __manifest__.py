@@ -30,4 +30,10 @@
         'views/custom/maintenance_task_views.xml',
         'views/custom/portal_templates.xml',
     ],
+
+    'assets': {
+        'web.assets_frontend': [
+            'maintence_extension/static/js/maintence.js',
+        ],
+    },
 }
