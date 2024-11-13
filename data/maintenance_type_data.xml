@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="maintenance_type_aviso" model="maintenance.type">
+            <field name="name">Aviso</field>
+            <field name="description">Aviso de mantenimiento</field>
+        </record>
+        <record id="maintenance_type_presupuesto" model="maintenance.type">
+            <field name="name">Presupuesto</field>
+            <field name="description">Presupuesto de mantenimiento</field>
+        </record>
+        <record id="maintenance_type_revision" model="maintenance.type">
+            <field name="name">Revisión</field>
+            <field name="description">Revisión de mantenimiento</field>
+        </record>
+        <record id="maintenance_type_reparacion" model="maintenance.type">
+            <field name="name">Reparación</field>
+            <field name="description">Reparación de mantenimiento</field>
+        </record>
+    </data>
+</odoo>
