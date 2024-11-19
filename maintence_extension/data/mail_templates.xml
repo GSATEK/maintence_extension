@@ -4,7 +4,7 @@
             <field name="name">Mantenimiento realizado</field>
             <field name="model_id" ref="maintenance.model_maintenance_request"/>
             <field name="subject">Orden de mantenimiento completada</field>
-            <field name="email_from">pruebas@prueba.com</field>
+            <field name="email_from">{{ object.company_id.email }}</field>
             <field name="body_html" type="html">
                 <p>Le informamos que la orden de mantenimiento <t t-out="object.name"/> para el cliente <t t-out="object.equipment_id.partner_id.name"/> ha sido marcada como reparada,</p>
                 <p><strong>Aqui están los detalles del mantenimiento realizado</strong></p>
