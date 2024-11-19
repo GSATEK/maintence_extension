@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <record id="maintenance_stage_pending_client_signature" model="maintenance.stage">
+            <field name="name">Pendiente de firma cliente</field>
+        </record>
+    </data>
+</odoo>

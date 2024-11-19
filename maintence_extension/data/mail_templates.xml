@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="email_template_maintenance_repaired" model="mail.template">
+            <field name="name">Mantenimiento realizado</field>
+            <field name="model_id" ref="maintenance.model_maintenance_request"/>
+            <field name="subject">Orden de mantenimiento completada</field>
+            <field name="email_from">pruebas@prueba.com</field>
+            <field name="body_html" type="html">
+                <p>Le informamos que la orden de mantenimiento <t t-out="object.name"/> para el cliente <t t-out="object.equipment_id.partner_id.name"/> ha sido marcada como reparada,</p>
+                <p><strong>Aqui están los detalles del mantenimiento realizado</strong></p>
+                <ul>
+                    <li><strong>Equipo reparado:</strong> <t t-out="object.equipment_id.name"/></li>
+                    <li><strong>Dirección:</strong> <t t-out="object.equipment_id.location"></t> </li>
+                    <li><strong>Horas invertidas:</strong> <t t-out="object.duration"/></li>
+                    <li><strong>Responsable:</strong> <t t-out="object.user_id.name"/></li>
+                    <li><strong>Tareas realizadas:</strong></li>
+                    <ul>
+                        <t t-foreach="object.task_ids" t-as="task">
+                            <li><t t-out="task.name"/> - tipo de mantenimiento: <t t-out="task.maintenance_tpye.name"/></li>
+                        </t>
+                    </ul>
+                    <li><strong>Observaciones</strong> <t t-out="object.observations"/></li>
+                    <li><strong>Materiales utilizados:</strong> <t t-out="object.materials_used"/></li>
+                </ul>
+                <p>Un saludo</p>
+            </field>
+        </record>
+    </data>
+</odoo>

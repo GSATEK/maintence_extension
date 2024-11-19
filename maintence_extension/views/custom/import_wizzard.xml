@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="view_import_maintenance_wizard_form" model="ir.ui.view">
+            <field name="name">import.maintenance.wizard.form</field>
+            <field name="model">import.maintenance.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import Maintenance Orders">
+                    <group>
+                        <field name="file" filename="file_name"/>
+                    </group>
+                    <footer>
+                        <button string="Import" type="object" name="import_file" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_import_maintenance_wizard" model="ir.actions.act_window">
+            <field name="name">Import Maintenance Orders</field>
+            <field name="res_model">import.maintenance.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_import_maintenance_wizard" name="Importar Ordenes de mantenimiento" parent="maintenance.menu_maintenance_title" action="action_import_maintenance_wizard" sequence="1"/>
+    </data>
+</odoo>

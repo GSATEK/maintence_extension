@@ -1,0 +1,9 @@
+<odoo>
+    <data noupdate="1">
+       <record id="group_portal_worker" model="res.groups">
+            <field name="name">Operario</field>
+            <field name="category_id" ref="base_portal_type.category_portal_type"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+       </record>
+    </data>
+</odoo>
