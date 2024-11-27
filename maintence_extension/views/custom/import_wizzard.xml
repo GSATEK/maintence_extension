@@ -9,15 +9,15 @@
                         <field name="file" filename="file_name"/>
                     </group>
                     <footer>
-                        <button string="Import" type="object" name="import_file" class="btn-primary"/>
-                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        <button string="Importar" type="object" name="import_file" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>
         </record>
 
         <record id="action_import_maintenance_wizard" model="ir.actions.act_window">
-            <field name="name">Import Maintenance Orders</field>
+            <field name="name">Importar ordenes de mantenimiento</field>
             <field name="res_model">import.maintenance.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

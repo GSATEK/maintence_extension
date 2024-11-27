@@ -11,4 +11,15 @@ class MaintenanceEquipment(models.Model):
         default='employee'
     )
     partner_id = fields.Many2one('res.partner', string='Cliente')
+    equipment_speed_type = fields.Selection(
+        [('high_speed', 'Alta velocidad'), ('low_speed', 'Baja velocidad')],
+        string='Tipo de aparato'
+    )
+    street = fields.Char(string='Calle')
+    city = fields.Char(string='Ciudad')
+    zip = fields.Char(string='Código postal')
+    state_id = fields.Many2one('res.country.state', string='Provincia')
+    home = fields.Char(string='Domicilio')
+    google_maps_link = fields.Char(string='Enlace a Google Maps')
+    route_id = fields.Many2one('maintenance.route', string='Ruta')
 

@@ -1,0 +1,40 @@
+<odoo>
+    <data>
+        <record id="view_maintenance_route_tree" model="ir.ui.view">
+            <field name="name">maintenance.route.tree</field>
+            <field name="model">maintenance.route</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="equipment_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_maintenance_route_form" model="ir.ui.view">
+            <field name="name">maintenance.route.form</field>
+            <field name="model">maintenance.route</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="description"/>
+                            <field name="equipment_ids" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_maintenance_route" model="ir.actions.act_window">
+            <field name="name">Rutas de mantenimiento</field>
+            <field name="res_model">maintenance.route</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Menu Item for Maintenance Route -->
+        <menuitem id="menu_maintenance_route" name="Rutas" parent="maintenance.menu_maintenance_title" action="action_maintenance_route"/>
+    </data>
+</odoo>

@@ -4,7 +4,8 @@ import logging
 
 _logger = logging.getLogger(__name__)
 class MaintenanceRequest(models.Model):
-    _inherit = 'maintenance.request'
+    _name = 'maintenance.request'
+    _inherit = ['maintenance.request', 'portal.mixin', 'mail.thread', 'mail.activity.mixin', 'utm.mixin']
 
     def _default_access_token(self):
         return uuid.uuid4().hex
@@ -12,13 +13,19 @@ class MaintenanceRequest(models.Model):
     name = fields.Char(string='Request Reference', required=True, copy=False, index=True, default=lambda self: _('New'))
     is_periodic_inspection = fields.Boolean(string='Es una inspección periódica')
     expiration_date = fields.Date(string='Fecha de caducidad')
-    work_done = fields.Text(string='Trabajos realizados', track_visibility='onchange')
-    materials_used = fields.Text(string='Materiales usados', track_visibility='onchange')
     observations = fields.Text(string='Observaciones', track_visibility='onchange')
     task_ids = fields.One2many('maintenance.task', 'maintenance_request_id', string='Tareas')
     worker_signature = fields.Binary(string='Firma trabajador', widget='image')
     client_signature = fields.Binary(string='Firma cliente', widget='image')
     access_token = fields.Char('Invitation Token', default=_default_access_token)
+    home = fields.Char(string='Domicilio')
+    contract_type = fields.Selection(
+        [('O', 'Ordinario'), ('TR', 'Todo riesgo')],
+        string='Tipo de contrato'
+    )
+    product_ids = fields.One2many('maintenance.request.product', 'maintenance_request_id', string='Products')
+    manager_id = fields.Many2one('res.partner', string='Gestoría')
+
 
     def action_open_signature_page(self):
         self.ensure_one()
@@ -48,8 +55,6 @@ class MaintenanceRequest(models.Model):
     def _update_notes(self):
         for record in self:
             notes = {
-                'Trabajos realizados': record.work_done or '',
-                'Materiales usados': record.materials_used or '',
                 'Observaciones': record.observations or ''
             }
 

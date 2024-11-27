@@ -8,6 +8,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='equipment_assign_to']" position="after">
                     <field name="partner_id" attrs="{'invisible': [('equipment_assign_to', '!=', 'client')]}"/>
+                    <field name="route_id"/>
+                    <field name="equipment_speed_type"/>
                 </xpath>
                 <xpath expr="//field[@name='employee_id']" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', '|', ('equipment_assign_to', '=', 'department'), ('equipment_assign_to', '=', 'client'), ('equipment_assign_to', '=', False)]}</attribute>
@@ -15,6 +17,18 @@
                 <xpath expr="//field[@name='department_id']" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', '|', ('equipment_assign_to', '=', 'employee'), ('equipment_assign_to', '=', 'client'), ('equipment_assign_to', '=', False)]}</attribute>
                 </xpath>
+                     <xpath expr="//notebook" position="inside">
+                        <page string="Dirección">
+                            <group>
+                                <field name="street"/>
+                                <field name="home"/>
+                                <field name="city"/>
+                                <field name="zip"/>
+                                <field name="state_id"/>
+                                <field name="google_maps_link"/>
+                            </group>
+                        </page>
+                     </xpath>
             </field>
         </record>
     </data>

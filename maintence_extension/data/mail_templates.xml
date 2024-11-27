@@ -10,7 +10,7 @@
                 <p><strong>Aqui están los detalles del mantenimiento realizado</strong></p>
                 <ul>
                     <li><strong>Equipo reparado:</strong> <t t-out="object.equipment_id.name"/></li>
-                    <li><strong>Dirección:</strong> <t t-out="object.equipment_id.location"></t> </li>
+                    <li><strong>Dirección:</strong> <t t-out="object.equipment_id.home"></t> </li>
                     <li><strong>Horas invertidas:</strong> <t t-out="object.duration"/></li>
                     <li><strong>Responsable:</strong> <t t-out="object.user_id.name"/></li>
                     <li><strong>Tareas realizadas:</strong></li>
@@ -20,7 +20,12 @@
                         </t>
                     </ul>
                     <li><strong>Observaciones</strong> <t t-out="object.observations"/></li>
-                    <li><strong>Materiales utilizados:</strong> <t t-out="object.materials_used"/></li>
+                    <li><strong>Productos utilizados:</strong></li>
+                    <ul>
+                        <t t-foreach="object.product_ids" t-as="product">
+                            <li><t t-out="product.product_id.name"/> - cantidad: <t t-out="product.quantity"/></li>
+                        </t>
+                    </ul>
                 </ul>
                 <p>Un saludo</p>
             </field>

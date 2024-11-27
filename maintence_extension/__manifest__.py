@@ -17,27 +17,29 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','website','maintenance','sale','account','hr','mail','base_portal_type','contacts'],
+    'depends': ['base','website','maintenance','sale','account','hr','mail','base_portal_type','contacts','stock'],
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
         'data/maintenance_request_sequence.xml',
         'data/maintenance_stage_data.xml',
         'data/user_portal_worker.xml',
         'data/maintenance_type_data.xml',
         'data/mail_templates.xml',
+        'security/ir.model.access.csv',
         'views/core/maintenance_equipment.xml',
         'views/core/maintenance_request_views.xml',
         'views/custom/maintenance_type_views.xml',
         'views/custom/maintenance_task_views.xml',
         'views/custom/portal_templates.xml',
         'views/custom/import_wizzard.xml',
+        'views/custom/routes_views.xml',
     ],
 
     'assets': {
         'web.assets_frontend': [
             'maintence_extension/static/js/maintence.js',
+            'maintence_extension/static/js/maintence_products.js',
         ],
     },
 }

@@ -8,6 +8,8 @@
                 <xpath expr="//field[@name='maintenance_type']" position="after">
                     <field name="is_periodic_inspection"/>
                     <field name="expiration_date"/>
+                    <field name="contract_type"/>
+                    <field name="manager_id"/>
                 </xpath>
                 <sheet>
                      <notebook position="inside">
@@ -24,8 +26,6 @@
                         </page>
                         <page string="Detalles adicionales">
                             <group>
-                                <field name="work_done"/>
-                                <field name="materials_used"/>
                                 <field name="observations"/>
                             </group>
                         </page>
@@ -33,6 +33,16 @@
                              <group>
                                  <field name="worker_signature"/>
                                  <field name="client_signature"/>
+                             </group>
+                         </page>
+                         <page string="Productos">
+                             <group>
+                                 <field name="product_ids">
+                                     <tree>
+                                         <field name="product_id"/>
+                                         <field name="quantity"/>
+                                     </tree>
+                                 </field>
                              </group>
                          </page>
                     </notebook>

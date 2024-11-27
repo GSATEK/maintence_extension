@@ -5,10 +5,12 @@ odoo.define("maintence_extension.sign", function (require) {
   console.log("LOADED SIGNATURE WIDGET");
 
   publicWidget.registry.MaintenceSign = publicWidget.Widget.extend({
-    selector: "#form_maintence",
+    selector: "#containerprueba",
     events: {
       'click #clear-signature-btn': "_cleanSign",
       'click #sheet_submit_button': '_clickSaveButton',
+      'click #submit_signature_button': '_clickFinalizeButton',
+      'click #start_maintenance_button': '_clickStartMaintenanceButton',
     },
 
     init: function () {
@@ -37,32 +39,30 @@ odoo.define("maintence_extension.sign", function (require) {
         "divMouseOvered",
         this.divMouseOvered
       );
-      // this.checkSignInValuesBeforeSubmit();
-      // this.checkIfDivWasClicked();
-      // this.checkifDivWasMouseOvered();
       return this._super(...arguments);
     },
 
     _cleanSign: function (e) {
       this.$signaturePad.jSignature("reset");
-      // $("#signature-data").val("");
-      // $("#signature-error").hide();
     },
 
-   _clickSaveButton: function (e) {
-        console.log("aqui");
+    _clickSaveButton: function (e) {
         const target = e.target;
         const maintence_id = target.getAttribute("maintence-id");
-        let signatureData = this.$signaturePad.jSignature("getData", "image");
-        console.log("maintence_id", maintence_id);
-        console.log("signatureData", signatureData);
 
         let taskStates = [];
         $('input.form-check-input[type="checkbox"]').each(function() {
-            let taskId = $(this).attr('name').split('_')[1];
-            let taskState = $(this).is(':checked') ? 'realizado' : 'pendiente';
-            taskStates.push({ id: taskId, state: taskState });
+            let nameAttr = $(this).attr('name');
+            if (nameAttr) {
+                let taskId = nameAttr.split('_')[1];
+                let taskState = $(this).is(':checked') ? 'realizado' : 'pendiente';
+                taskStates.push({ id: taskId, state: taskState });
+            } else {
+                console.error("Checkbox without a name attribute found.");
+            }
         });
+
+        console.log("Task States:", taskStates);
 
         this._rpc({
             route: '/my/maintenance_order/update',
@@ -71,16 +71,49 @@ odoo.define("maintence_extension.sign", function (require) {
                 stage_id: $('select[name="stage_id"]').val(),
                 duration: $('input[name="duration"]').val(),
                 request_date: $('input[name="request_date"]').val(),
-                work_done: $('textarea[name="work_done"]').val(),
-                materials_used: $('textarea[name="materials_used"]').val(),
                 observations: $('textarea[name="observations"]').val(),
-                signature: signatureData[1],
-                tasks: taskStates
+                tasks: taskStates,
+                action: 'save'
             },
         }).then(function (response) {
-            window.location.href = '/my/maintenance_orders';
+            window.location.reload();
         }).catch(function (error) {
             console.error("Error updating maintenance order:", error);
+        });
+    },
+
+    _clickFinalizeButton: function (e) {
+      console.log("CLICKED FINALIZE BUTTON");
+      const maintence_id = $('#submit_signature_button').attr("maintence-id");
+      let signatureData = this.$signaturePad.jSignature("getData", "image");
+
+      this._rpc({
+          route: '/my/maintenance_order/update',
+          params: {
+              id: maintence_id,
+              signature: signatureData[1],
+              action: 'finalize',
+              observations: $('textarea[name="observations"]').val(),
+          },
+      }).then(function (response) {
+          window.location.reload();
+      }).catch(function (error) {
+          console.error("Error finalizing maintenance order:", error);
+      });
+    },
+    _clickStartMaintenanceButton: function (e) {
+        console.log("CLICKED START MAINTENANCE BUTTON");
+        const maintence_id = $('#start_maintenance_button').attr("maintence-id");
+
+        this._rpc({
+            route: '/my/maintenance_order/update_stage',
+            params: {
+                id: maintence_id,
+            },
+        }).then(function (response) {
+            window.location.reload();
+        }).catch(function (error) {
+            console.error("Error starting maintenance order:", error);
         });
     },
 

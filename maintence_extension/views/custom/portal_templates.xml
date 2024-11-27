@@ -63,222 +63,414 @@
             </t>
         </template>
 
-        <template id="portal_my_maintenance_order" name="My Maintenance Order">
+       <template id="portal_my_maintenance_order" name="My Maintenance Order">
             <t t-call="portal.portal_layout">
-                <t t-call="portal.portal_record_layout">
-                    <t t-set="card_header">
-                        <div class="card-header bg-white">
-                            <div class="col-12">
-                                <h5 class="d-flex mb-1 mb-md-0 row">
-                                    <div class="col-9">
-                                        <strong>Orden de mantenimiento:</strong>
-                                        <input type="text" t-att-value="maintenance_order.name" name="name" class="form-control" readonly="readonly"/>
-                                    </div>
-                                </h5>
-                            </div>
-                        </div>
-                    </t>
-                    <t t-set="card_body">
-                        <form action="#" method="post" id="form_maintence">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="id" t-att-value="maintenance_order.id"/>
-                            <div class="row container">
-                                <div class="col-12">
-                                    <div><strong>Estado: </strong>
-                                        <select name="stage_id" class="form-control">
-                                            <t t-foreach="maintenance_order.stage_id.search([])" t-as="stage">
-                                                <option t-att-value="stage.id" t-att-selected="stage.id == maintenance_order.stage_id.id">
-                                                    <t t-esc="stage.name"/>
-                                                </option>
-                                            </t>
-                                        </select>
-                                    </div>
-                                    <div style="margin-top: 30px;"><strong>Horas Invertidas: </strong><input type="number" t-att-value="maintenance_order.duration" name="duration" class="form-control"/></div>
-                                    <div style="margin-top: 30px; margin-bottom: 30px;"><strong>Fecha de peticion: </strong><input type="date" t-att-value="maintenance_order.request_date" name="request_date" class="form-control"/></div>
-                                    <div><strong>Trabajos realizados: </strong><textarea name="work_done" class="form-control"><t t-esc="maintenance_order.work_done"/></textarea></div>
-                                    <div style="margin-top: 30px;"><strong>Materiales usados: </strong><textarea name="materials_used" class="form-control"><t t-esc="maintenance_order.materials_used"/></textarea></div>
-                                    <div style="margin-top: 30px;"><strong>Observaciones: </strong><textarea name="observations" class="form-control"><t t-esc="maintenance_order.observations"/></textarea></div>
+                <t t-call="portal.portal_record_layout" />
+                <div id="containerprueba" class="container mt-4">
+
+                    <div role="dialog" class="modal fade" id="modalaccept" tabindex="-1" aria-labelledby="modalacceptLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <header class="modal-header">
+                                    <h4 class="modal-title" id="modalacceptLabel">Firmar Ruta</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+                                </header>
+                                <main class="modal-body" id="sign-dialog">
+                                    <div id="signature-pad" />
+                                    <div style="height: 1px; background-color: black; width: 50%;" />
+                                    <button style="margin-top:10px;" type="button" class="btn btn-primary" id="clear-signature-btn"> Limpiar </button>
+                                </main>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="button" class="btn btn-primary" id="submit_signature_button" t-att-maintence-id="maintenance_order.id">Guardar Firma</button>
                                 </div>
                             </div>
-                            <div class="row container" style="margin-top: 30px; margin-bottom: 30px;">
-                                <div class="col-12">
-                                    <h5>Tareas</h5>
-                                   <div class="table-responsive">
-                                        <table class="table table-borderless">
+                        </div>
+                    </div>
+
+                    <!-- Información General -->
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5>Información del cliente y equipo</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="margin-top: 30px; margin-bottom: 30px;">
+                                        <strong>
+                                            Fecha de visita:
+                                            <span t-esc="maintenance_order.schedule_date" />
+                                        </strong>
+                                    </div>
+                                    <p>
+                                        <strong>Nombre:</strong>
+                                        <span t-esc="maintenance_order.equipment_id.partner_id.name" />
+                                    </p>
+                                    <p>
+                                        <strong>Teléfono:</strong>
+                                        <span t-esc="maintenance_order.equipment_id.partner_id.phone" />
+                                    </p>
+                                    <p>
+                                        <strong>Dirección:</strong>
+                                        <span t-esc="maintenance_order.equipment_id.street" />
+                                        <span t-esc="maintenance_order.equipment_id.city" />
+                                        <span t-esc="maintenance_order.equipment_id.state_id.name" />
+                                        <span t-esc="maintenance_order.equipment_id.zip" />
+                                    </p>
+                                    <p>
+                                        <strong>Tipo de aparato:</strong>
+                                        <t t-if="maintenance_order.equipment_id.equipment_speed_type == 'high_speed'">
+                                            Alta velocidad
+                                        </t>
+                                        <t t-else="">
+                                            Baja velocidad
+                                        </t>
+                                    </p>
+                                    <p>
+                                        <strong>Número de serie:</strong>
+                                        <span t-esc="maintenance_order.equipment_id.serial_no" />
+                                    </p>
+                                    <p>
+                                        <strong>Domicilio:</strong>
+                                        <span t-esc="maintenance_order.equipment_id.home" />
+                                    </p>
+                                </div>
+                            </div>
+                            <t t-if="maintenance_order.equipment_id.google_maps_link">
+                                <div class="card shadow-sm mb-4">
+                                    <div class="card-header">
+                                        <h5>Ubicación en Google Maps</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <iframe t-att-src="google_maps_src" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5>
+                                        Orden de mantenimiento
+                                        <span t-esc="maintenance_order.name" />
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label><strong>Estado:</strong></label>
+                                        <span class="form-control-plaintext ms-2">
+                                            <t t-esc="maintenance_order.stage_id.name" />
+                                        </span>
+                                        <t t-if="maintenance_order.stage_id.name == 'Nueva solicitud'">
+                                            <button type="button" class="btn btn-primary ms-2" t-att-maintence-id="maintenance_order.id" id="start_maintenance_button">Empezar Mantenimiento</button>
+                                        </t>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label><strong>Horas Invertidas:</strong></label>
+                                        <input type="number" t-att-value="maintenance_order.duration" name="duration" class="form-control" />
+                                    </div>
+                                    <div>
+                                        <label><strong>Observaciones:</strong></label>
+                                        <textarea name="observations" class="form-control">
+                                            <t t-esc="maintenance_order.observations" />
+                                        </textarea>
+                                    </div>
+                                    <div class="table-responsive" style="margin-top: 20px;">
+                                        <label><strong>Tareas a realizar:</strong></label>
+                                        <table class="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th>Nombre</th>
+                                                    <th>Estado</th>
                                                     <th>Descripción</th>
                                                     <th>Tipo</th>
                                                     <th>Tiempo Estimado</th>
-                                                    <th>Estado</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <t t-foreach="maintenance_order.task_ids" t-as="task">
                                                     <tr>
-                                                        <td><t t-esc="task.name"/></td>
-                                                        <td><t t-esc="task.description"/></td>
-                                                        <td><t t-esc="task.maintenance_tpye.name"/></td>
-                                                        <td><t t-esc="task.time"/></td>
-                                                        <td style="display:flex; align-items: center;">
-                                                            <label class="form-check-label" style="margin-right: 10px;">Realizado</label>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" t-att-name="'state_' + str(task.id)" t-att-checked="task.state == 'realizado'"/>
+                                                        <td>
+                                                            <t t-esc="task.name" />
+                                                        </td>
+                                                        <td>
+                                                            <span t-esc="task.state" />
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" t-att-name="'task_' + str(task.id)" t-att-checked="task.state == 'realizado'" t-att-disabled="false" />
                                                             </div>
+                                                        </td>
+                                                        <td>
+                                                            <t t-esc="task.description" />
+                                                        </td>
+                                                        <td>
+                                                            <t t-esc="task.maintenance_tpye.name" />
+                                                        </td>
+                                                        <td>
+                                                            <t t-esc="task.time" />
                                                         </td>
                                                     </tr>
                                                 </t>
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="signature-container" style="display: flex; justify-content: space-between;">
-                                <div>
-                                    <strong>Firma trabajador: </strong>
-                                    <div class="signature-field" style="border-bottom: 1px solid #000; margin-bottom: 30px;">
-                                        <span
-                                                t-field="maintenance_order.worker_signature"
-                                                t-options='{"widget": "image", "size": (300, 100)}'
-                                                t-att-class="'d-none' if not maintenance_order.worker_signature else ''"
-                                        />
-                                        <div id="signature-pad">
-
+                                    <t t-if="maintenance_order.contract_type == 'TR'">
+                                        <div class="table-responsive mt-4">
+                                            <label><strong>Productos utilizados:</strong></label>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Producto</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="maintenance_order.product_ids" t-as="product">
+                                                        <tr t-att-data-product-id="product.id">
+                                                            <td>
+                                                                <t t-esc="product.product_id.name" />
+                                                            </td>
+                                                            <td>
+                                                                <t t-esc="product.quantity" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                                                <button type="button" class="btn btn-sm btn-danger">Eliminar</button>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                    <tr>
+                                                        <td colspan="3" class="text-end">
+                                                            <button id="Addproductbtn" type="button" class="btn btn-sm btn-success" t-att-maintence-id="maintenance_order.id">Añadir Producto</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
-
-                                    </div>
-                                    <button type="button" class="btn btn-primary" id="clear-signature-btn">
-                                        Limpiar
-                                    </button>
+                                    </t>
                                 </div>
                             </div>
-                            <div class="row container mt-3">
-                                <div class="col-12">
-                                    <button type="button" class="btn btn-primary" id="sheet_submit_button" t-att-maintence-id="maintenance_order.id">Guardar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </t>
-                </t>
-            </t>
-        </template>
-       <template id="maintence_extension.portal_my_maintenance_order_readonly" name="My Maintenance Order Readonly">
-            <t t-call="portal.portal_layout">
-                <t t-call="portal.portal_record_layout">
-                    <t t-set="card_header">
-                        <div class="card-header bg-white">
-                            <div class="col-12">
-                                <h5 class="d-flex mb-1 mb-md-0 row">
-                                    <div class="col-9">
-                                        <strong>Orden de mantenimiento:</strong>
-                                        <input type="text" t-att-value="maintenance_order.name" name="name" class="form-control" readonly="readonly"/>
+                             <div class="row mt-4">
+                                    <div class="col-12" style="margin-top:30px;">
+                                        <div class="d-inline-block">
+                                            <button type="button" class="btn btn-primary" id="sheet_submit_button" t-att-maintence-id="maintenance_order.id">Guardar</button>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalaccept">Finalizar documento</button>
+                                        </div>
                                     </div>
-                                </h5>
                             </div>
                         </div>
+                    </div>
+                    <div id="maintence_order_chatter" class="mt-4">
+                        <h2>History</h2>
+                        <t t-set="object" t-value="maintenance_order"/>
+                        <t t-call="portal.message_thread"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
+
+       <template id="portal_my_maintenance_order_readonly" name="My Maintenance Order Read-Only">
+            <t t-call="portal.portal_layout">
+                <t t-call="portal.portal_record_layout"></t>
+                <div id="containerprueba" class="container mt-4">
+                    <!-- Información general -->
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5>Información del cliente y equipo</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="margin-top: 30px; margin-bottom: 30px;"><strong>Fecha de visita: <span t-esc="maintenance_order.schedule_date"/></strong></div>
+                                    <p><strong>Nombre:</strong> <span t-esc="maintenance_order.equipment_id.partner_id.name"/></p>
+                                    <p><strong>Teléfono:</strong> <span t-esc="maintenance_order.equipment_id.partner_id.phone"/></p>
+                                    <p><strong>Dirección:</strong> <span t-esc="maintenance_order.equipment_id.partner_id.street"/> <span t-esc="maintenance_order.equipment_id.city"/> <span t-esc="maintenance_order.equipment_id.state_id.name"/> <span t-esc="maintenance_order.equipment_id.zip"/></p>
+                                    <p><strong>Tipo de aparato:</strong> <t t-if="maintenance_order.equipment_id.equipment_speed_type == 'high_speed'">
+                                            Alta velocidad
+                                        </t>
+                                        <t t-else="">
+                                            Baja velocidad
+                                        </t></p>
+                                    <p><strong>Número de serie:</strong> <span t-esc="maintenance_order.equipment_id.serial_no"/></p>
+                                    <p><strong>Domicilio:</strong> <span t-esc="maintenance_order.equipment_id.home"/></p>
+                                </div>
+                            </div>
+                            <t t-if="maintenance_order.equipment_id.google_maps_link">
+                                <div class="card shadow-sm mb-4">
+                                    <div class="card-header">
+                                        <h5>Ubicación en Google Maps</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <iframe t-att-src="google_maps_src"
+                                                width="100%"
+                                                height="450"
+                                                style="border:0;"
+                                                allowfullscreen=""
+                                                loading="lazy"
+                                                referrerpolicy="no-referrer-when-downgrade">
+                                        </iframe>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5>Orden de mantenimiento <span t-esc="maintenance_order.name"/></h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label><strong>Estado:</strong></label>
+                                            <span class="form-control-plaintext ms-2"><t t-esc="maintenance_order.stage_id.name"/></span>
+                                            <t t-if="maintenance_order.stage_id.name == 'Nueva solicitud'">
+                                                <button type="button" class="btn btn-primary ms-2" t-att-maintence-id="maintenance_order.id" id="start_maintenance_button">Empezar Mantenimiento</button>
+                                            </t>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label><strong>Horas Invertidas:</strong></label>
+                                            <input type="number" t-att-value="maintenance_order.duration" name="duration" class="form-control" readonly="readonly"/>
+                                        </div>
+                                        <div>
+                                            <label><strong>Observaciones:</strong></label>
+                                            <textarea name="observations" class="form-control" readonly="readonly"><t t-esc="maintenance_order.observations"/></textarea>
+                                        </div>
+                                        <div class="table-responsive" style="margin-top: 20px;">
+                                            <label><strong>Tareas a realizar:</strong></label>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nombre</th>
+                                                        <th>Estado</th>
+                                                        <th>Descripción</th>
+                                                        <th>Tipo</th>
+                                                        <th>Tiempo Estimado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="maintenance_order.task_ids" t-as="task">
+                                                        <tr>
+                                                            <td><t t-esc="task.name"/></td>
+                                                            <td>
+                                                                <span t-esc="task.state"/>
+                                                            </td>
+                                                            <td><t t-esc="task.description"/></td>
+                                                            <td><t t-esc="task.maintenance_tpye.name"/></td>
+                                                            <td><t t-esc="task.time"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <t t-if="maintenance_order.contract_type == 'TR'">
+                                            <div class="table-responsive mt-4">
+                                                <label><strong>Productos utilizados:</strong></label>
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Producto</th>
+                                                            <th>Cantidad</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="maintenance_order.product_ids" t-as="product">
+                                                            <tr t-att-data-product-id="product.id">
+                                                                <td><t t-esc="product.product_id.name"/></td>
+                                                                <td><t t-esc="product.quantity"/></td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <t t-if="maintenance_order.client_signature">
+                                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                                <label class="me-2"><strong>Firma cliente:</strong></label>
+                                                <span t-field="maintenance_order.client_signature" t-options='{"widget": "image", "size": (300, 100)}' style="border-bottom: 1px solid #000; display: block;"/>
+                                            </div>
+                                        </t>
+                                        <t t-if="maintenance_order.worker_signature">
+                                            <div class="col-12 col-md-6 d-flex align-items-center mt-3 mt-md-0">
+                                                <label class="me-2"><strong>Firma empleado:</strong></label>
+                                                <span t-field="maintenance_order.worker_signature" t-options='{"widget": "image", "size": (300, 100)}' style="border-bottom: 1px solid #000; display: block;"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                                 <t t-if="not maintenance_order.client_signature">
+                                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalaccept">Firmar cliente</button>
+                                 </t>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- Modal for Signature -->
+                    <div role="dialog" class="modal fade" id="modalaccept" tabindex="-1" aria-labelledby="modalacceptLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <header class="modal-header">
+                                    <h4 class="modal-title" id="modalacceptLabel">Firmar Ruta</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </header>
+                                <main class="modal-body" id="sign-dialog">
+                                    <div id="signature-pad"></div>
+                                    <div style="height: 1px; background-color: black; width: 50%;"></div>
+                                    <button style="margin-top:10px;" type="button" class="btn btn-primary" id="clear-signature-btn">Limpiar</button>
+                                </main>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="button" class="btn btn-primary" id="submit_signature_button" t-att-maintence-id="maintenance_order.id">Guardar Firma</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div id="maintence_order_chatter" class="mt-4">
+                        <h2>History</h2>
+                        <t t-set="object" t-value="maintenance_order"/>
+                        <t t-call="portal.message_thread"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="sale.portal_my_home_sale" name="Show Quotations / Sales Orders" customize_show="True" inherit_id="portal.portal_my_home" priority="20">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-if="request.env.user.has_group('base.group_system')">
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="title">Quotations</t>
+                        <t t-set="url" t-value="'/my/quotes'"/>
+                        <t t-set="placeholder_count" t-value="'quotation_count'"/>
                     </t>
-                    <t t-set="card_body">
-                        <form action="#" method="post" id="form_maintence" readonly="readonly">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="id" t-att-value="maintenance_order.id"/>
-                            <div class="row container">
-                                <div class="col-12">
-                                    <div><strong>Estado: </strong>
-                                        <select name="stage_id" class="form-control" disabled="disabled">
-                                            <t t-foreach="maintenance_order.stage_id.search([])" t-as="stage">
-                                                <option t-att-value="stage.id" t-att-selected="stage.id == maintenance_order.stage_id.id">
-                                                    <t t-esc="stage.name"/>
-                                                </option>
-                                            </t>
-                                        </select>
-                                    </div>
-                                    <div style="margin-top: 30px; margin-bottom: 30px;"><strong>Fecha de peticion: </strong><input type="date" t-att-value="maintenance_order.request_date" name="request_date" class="form-control" readonly="readonly"/></div>
-                                    <div><strong>Horas Invertidas: </strong><input type="number" t-att-value="maintenance_order.duration" name="duration" class="form-control" readonly="readonly"/></div>
-                                    <div style="margin-top: 30px;"><strong>Trabajos realizados: </strong><textarea name="work_done" class="form-control" readonly="readonly"><t t-esc="maintenance_order.work_done"/></textarea></div>
-                                    <div style="margin-top: 30px;"><strong>Materiales usados: </strong><textarea name="materials_used" class="form-control" readonly="readonly"><t t-esc="maintenance_order.materials_used"/></textarea></div>
-                                    <div style="margin-top: 30px;"><strong>Observaciones: </strong><textarea name="observations" class="form-control" readonly="readonly"><t t-esc="maintenance_order.observations"/></textarea></div>
-                                </div>
-                            </div>
-                            <div class="row container" style="margin-top: 30px; margin-bottom: 30px;">
-                                <div class="col-12">
-                                    <h5>Tareas</h5>
-                                  <div class="table-responsive">
-                                    <table class="table table-borderless">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Descripción</th>
-                                                <th>Tipo</th>
-                                                <th>Tiempo Estimado</th>
-                                                <th>Estado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="maintenance_order.task_ids" t-as="task">
-                                                <tr>
-                                                    <td><t t-esc="task.name"/></td>
-                                                    <td><t t-esc="task.description"/></td>
-                                                    <td><t t-esc="task.maintenance_tpye.name"/></td>
-                                                    <td><t t-esc="task.time"/></td>
-                                                    <td style="display:flex; align-items: center;">
-                                                        <label class="form-check-label" style="margin-right: 10px;">Realizado</label>
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" t-att-name="'state_' + str(task.id)" t-att-checked="task.state == 'realizado'"/>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 col-12">
-                                    <div>
-                                        <strong>Firma cliente: </strong>
-                                        <t t-if="not maintenance_order.client_signature">
-                                            <div id="signature-pad"></div>
-                                        </t>
-                                        <div class="signature-field" style="border-bottom: 1px solid #000; margin-bottom: 30px;">
-                                            <span
-                                                    t-field="maintenance_order.client_signature"
-                                                    t-options='{"widget": "image", "size": (300, 100)}'
-                                                    t-att-class="'d-none' if not maintenance_order.client_signature else ''"
-                                            />
-                                        </div>
-                                        <t t-if="not maintenance_order.client_signature">
-                                            <button type="button" class="btn btn-primary" id="clear-signature-btn">
-                                                Limpiar
-                                            </button>
-                                        </t>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-12">
-                                    <div>
-                                        <strong>Firma trabajador:</strong>
-                                        <div class="signature-field" style="border-bottom: 1px solid #000; margin-bottom: 30px;">
-                                             <span
-                                                t-field="maintenance_order.worker_signature"
-                                                t-options='{"widget": "image", "size": (300, 100)}'
-                                                t-att-class="'d-none' if not maintenance_order.worker_signature else ''"
-                                             />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row container mt-3">
-                                <t t-if="not maintenance_order.client_signature">
-                                    <div class="col-12">
-                                        <button type="button" class="btn btn-primary" id="sheet_submit_button" t-att-maintence-id="maintenance_order.id">Guardar</button>
-                                    </div>
-                                </t>
-                            </div>
-                        </form>
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="title">Sales Orders</t>
+                        <t t-set="url" t-value="'/my/orders'"/>
+                        <t t-set="placeholder_count" t-value="'order_count'"/>
                     </t>
                 </t>
-            </t>
+            </xpath>
+        </template>
+        <template id="account.portal_my_home_invoice" name="Show Invoices &amp; Bills" inherit_id="portal.portal_my_home" customize_show="True" priority="30">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-if="request.env.user.has_group('base.group_system')">
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="title">Invoices &amp; Bills</t>
+                        <t t-set="url" t-value="'/my/invoices'"/>
+                        <t t-set="placeholder_count" t-value="'invoice_count'"/>
+                    </t>
+                </t>
+            </xpath>
         </template>
     </data>
 </odoo>
