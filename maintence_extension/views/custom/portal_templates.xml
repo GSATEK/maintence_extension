@@ -172,7 +172,7 @@
                                     </div>
                                     <div>
                                         <label><strong>Observaciones:</strong></label>
-                                        <textarea name="observations" class="form-control" t-att-value="maintenance_order.observations"></textarea>
+                                        <textarea name="observations" class="form-control"><t t-esc="maintenance_order.observations"/></textarea>
                                     </div>
                                     <div class="table-responsive" style="margin-top: 20px;">
                                         <label><strong>Tareas a realizar:</strong></label>
