@@ -138,7 +138,7 @@ class PortalMaintenance(CustomerPortal):
 
         maintenance_order_id = int(maintenance_order_id)
         maintenance_order = request.env['maintenance.request'].sudo().browse(maintenance_order_id)
-        stage_id = request.env['maintenance.stage'].sudo().search([('name', '=', 'En progreso')], limit=1).id
+        stage_id = request.env.ref('maintenance.stage_1').id
 
         if maintenance_order.exists():
             maintenance_order.sudo().write({'stage_id': stage_id})

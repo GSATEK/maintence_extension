@@ -36,14 +36,12 @@
                              </group>
                          </page>
                          <page string="Productos">
-                             <group>
                                  <field name="product_ids">
                                      <tree>
                                          <field name="product_id"/>
                                          <field name="quantity"/>
                                      </tree>
                                  </field>
-                             </group>
                          </page>
                     </notebook>
                 </sheet>

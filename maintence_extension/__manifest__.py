@@ -17,7 +17,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','website','maintenance','sale','account','hr','mail','base_portal_type','contacts','stock'],
+    'depends': ['base','website','maintenance','sale','account','hr','mail','base_portal_type','contacts','stock','web','web_pwa_oca'],
 
     # always loaded
     'data': [
@@ -40,6 +40,8 @@
         'web.assets_frontend': [
             'maintence_extension/static/js/maintence.js',
             'maintence_extension/static/js/maintence_products.js',
+            'maintence_extension/static/scss/navbar.scss',
+            'https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css',
         ],
     },
 }

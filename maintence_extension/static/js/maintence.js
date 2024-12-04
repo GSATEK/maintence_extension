@@ -23,7 +23,7 @@ odoo.define("maintence_extension.sign", function (require) {
         color: "#000000",
         lineWidth: 2,
         width: 300,
-        height: 100,
+        height: 160,
       });
       this.divCicked = false;
       this.divMouseOvered = false;
@@ -87,6 +87,9 @@ odoo.define("maintence_extension.sign", function (require) {
       const maintence_id = $('#submit_signature_button').attr("maintence-id");
       let signatureData = this.$signaturePad.jSignature("getData", "image");
 
+      const $button = $('#submit_signature_button');
+      $button.prop('disabled', true).text('Guardando...');
+
       this._rpc({
           route: '/my/maintenance_order/update',
           params: {
@@ -99,6 +102,7 @@ odoo.define("maintence_extension.sign", function (require) {
           window.location.reload();
       }).catch(function (error) {
           console.error("Error finalizing maintenance order:", error);
+          $button.prop('disabled', false).text('Guardar Firma');
       });
     },
     _clickStartMaintenanceButton: function (e) {
