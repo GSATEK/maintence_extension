@@ -55,6 +55,10 @@ class ImportMaintenanceWizard(models.TransientModel):
                         if responsible_user:
                             vals_request['user_id'] = responsible_user.id
                             _logger.info(f"Responsible user: {responsible_user.id}")
+                        maintenance_request = self.env['maintenance.request'].create(vals_request)
+                        _logger.info(f"Created maintenance request: {maintenance_request.id}")
+                    else:
+                        _logger.info("No responsible email found, using last maintenance request.")
 
                 if len(row) > 4:
                     task_name = row[4].value
@@ -89,6 +93,8 @@ class ImportMaintenanceWizard(models.TransientModel):
                     gestoria_email = row[16].value
                     equipment_speed_type = row[17].value
 
+                    _logger.info(f"contact_type: {contract_type}")
+
                     state_id = self.env['res.country.state'].search([('name', '=', state_name)], limit=1).id if state_name else False
 
                     if client_email and client_name:
@@ -111,7 +117,8 @@ class ImportMaintenanceWizard(models.TransientModel):
                                 client.state_id = state_id
                             _logger.info(f"Found client: {client.id}")
 
-                        equipment = self.env['maintenance.equipment'].search([('serial_no', '=', rae)], limit=1)
+                        equipment = self.env['maintenance.equipment'].with_context(active_test=False).search(
+                            [('serial_no', '=', rae)], limit=1)
                         if not equipment:
                             _logger.info(f"Creating equipment for client: {client.id}")
                             equipment = self.env['maintenance.equipment'].create({
@@ -140,24 +147,44 @@ class ImportMaintenanceWizard(models.TransientModel):
                                 equipment.google_maps_link = url_google_maps
                             if not equipment.equipment_speed_type:
                                 equipment.equipment_speed_type = 'high_speed' if equipment_speed_type == 'Alta velocidad' else 'low_speed'
+                            if not equipment.active:
+                                equipment.active = True
+                                _logger.info(f"Unarchived equipment: {equipment.id}")
                             _logger.info(f"Found equipment: {equipment.id}")
 
                         vals_request['equipment_id'] = equipment.id
 
                     if gestoria_email:
                         gestoria = self.env['res.partner'].search([('email', '=', gestoria_email)], limit=1)
-                        if gestoria:
-                            vals_request['manager_id'] = gestoria.id
-                            _logger.info(f"Gestoria: {gestoria.id}")
+                        if not gestoria:
+                            gestoria = self.env['res.partner'].create({
+                                'name': gestoria_email,
+                                'email': gestoria_email
+                            })
+                            _logger.info(f"Created new gestoria: {gestoria.id}")
 
-                    vals_request['contract_type'] = contract_type
+                    valid_contract_types = dict(self.env['maintenance.request'].fields_get(allfields=['contract_type'])['contract_type']['selection'])
+                    _logger.info(f"Valid contract types: {valid_contract_types}")
+                    if contract_type in valid_contract_types:
+                        vals_request['contract_type'] = contract_type
+                    else:
+                        _logger.warning(f"Invalid contract type: {contract_type}")
+
                     _logger.info(f"Contract type: {contract_type}")
 
                 _logger.info(f"vals_request: {vals_request}")
 
-                if vals_request and not maintenance_request:
-                    maintenance_request = self.env['maintenance.request'].create(vals_request)
-                    _logger.info(f"Created maintenance request: {maintenance_request.id}")
+                if maintenance_request:
+                    update_vals = {}
+                    if gestoria:
+                        update_vals['manager_id'] = gestoria.id
+                    if 'equipment_id' in vals_request:
+                        update_vals['equipment_id'] = vals_request['equipment_id']
+                    if 'contract_type' in vals_request:
+                        update_vals['contract_type'] = vals_request['contract_type']
+                    if update_vals:
+                        maintenance_request.write(update_vals)
+                        _logger.info(f"Updated maintenance request with: {update_vals}")
 
                 if vals_task and maintenance_request:
                     vals_task['maintenance_request_id'] = maintenance_request.id
