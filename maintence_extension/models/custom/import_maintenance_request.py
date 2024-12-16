@@ -111,11 +111,11 @@ class ImportMaintenanceWizard(models.TransientModel):
                                 client.state_id = state_id
                             _logger.info(f"Found client: {client.id}")
 
-                        equipment = self.env['maintenance.equipment'].search([('partner_id', '=', client.id)], limit=1)
+                        equipment = self.env['maintenance.equipment'].search([('serial_no', '=', rae)], limit=1)
                         if not equipment:
                             _logger.info(f"Creating equipment for client: {client.id}")
                             equipment = self.env['maintenance.equipment'].create({
-                                'name': f'Equipo {client_name} {rae}',
+                                'name': f'ascensor {client_name}',
                                 'partner_id': client.id,
                                 'equipment_assign_to': 'client',
                                 'serial_no': rae,
