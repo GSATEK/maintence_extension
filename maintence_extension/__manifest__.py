@@ -40,7 +40,10 @@
         'web.assets_frontend': [
             'maintence_extension/static/js/maintence.js',
             'maintence_extension/static/js/maintence_products.js',
+            'maintence_extension/static/js/map.js',
+            'maintence_extension/static/js/single_order_map.js',
             'maintence_extension/static/scss/navbar.scss',
+            'maintence_extension/static/scss/map.scss',
             'https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css',
         ],
     },

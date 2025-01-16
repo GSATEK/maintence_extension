@@ -6,6 +6,7 @@ import logging
 from werkzeug.exceptions import Forbidden
 import binascii
 from lxml import etree
+import json
 
 _logger = logging.getLogger(__name__)
 
@@ -197,3 +198,49 @@ class PortalMaintenance(CustomerPortal):
             product.unlink()
             return {'status': 'success'}
         return {'status': 'error', 'message': 'Product not found'}
+
+    @http.route('/maintenance/orders/locations', type='json', auth='user')
+    def get_maintenance_orders_locations(self):
+        user_id = request.uid
+        orders = request.env['maintenance.request'].search([('user_id', '=', user_id)])
+
+        locations = []
+
+        for order in orders:
+            if order.equipment_id.latitude and order.equipment_id.longitude and order.stage_id.name != 'Reparado':
+                order_data = {
+                    'id': order.id,
+                    'access_token': order.access_token,
+                    'latitude': order.equipment_id.latitude,
+                    'longitude': order.equipment_id.longitude,
+                    'name': order.name,
+                    'state': order.stage_id.name
+                }
+                locations.append(order_data)
+
+        return locations
+
+    @http.route('/my/maintenance_map', type='http', auth='user', website=True)
+    def maintenance_map(self, **kwargs):
+        return request.render('maintence_extension.portal_my_maintenance_map')
+
+    @http.route('/maintenance/order/location/<int:order_id>', type='http', methods=['GET'], auth='user')
+    def get_order_location(self, order_id):
+        _logger.info(f"Getting location for order ID: {order_id}")
+        order = request.env['maintenance.request'].sudo().browse(order_id)
+        if order:
+            result = {
+                'result': {
+                    'latitude': order.equipment_id.latitude,
+                    'longitude': order.equipment_id.longitude,
+                    'state': order.stage_id.name,
+                    'name': order.name
+                }
+            }
+        else:
+            result = {'result': None}
+
+        return request.make_response(
+            json.dumps(result),
+            headers=[('Content-Type', 'application/json')]
+        )

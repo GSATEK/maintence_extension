@@ -26,6 +26,8 @@
                                 <field name="zip"/>
                                 <field name="state_id"/>
                                 <field name="google_maps_link"/>
+                                <field name="latitude"/>
+                                <field name="longitude"/>
                             </group>
                         </page>
                      </xpath>

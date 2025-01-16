@@ -1,0 +1,23 @@
+.ol-attribution {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #map-legend {
+        padding: 5px;
+    }
+
+    #map-legend h5 {
+        font-size: 14px;
+    }
+
+    #map-legend li span {
+        width: 15px;
+        height: 15px;
+    }
+
+    #map-legend li {
+        font-size: 12px;
+    }
+}
+

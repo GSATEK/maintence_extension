@@ -30,6 +30,7 @@
                             </t>
                         </select>
                     </div>
+
                 </div>
                 <t t-if="not maintenance_orders">
                     <p>Actualmente usted no cuenta con órdenes de mantenimiento registradas.</p>
@@ -59,9 +60,29 @@
                             </tbody>
                         </table>
                     </t>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/my/maintenance_map'">Mi Mapa</button>
+                    </div>
                 </t>
             </t>
         </template>
+        <template id="portal_my_maintenance_map" name="My Maintenance Map">
+            <t t-call="website.layout">
+                <div id="map-container" style="height: 100vh; position: relative;">
+                    <div id="map-legend" style="position: absolute; top: 10px; right: 10px; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000;">
+                        <h5>Guía</h5>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li><span style="background-color: blue; width: 20px; height: 20px; display: inline-block; border-radius: 50%;"></span> Nueva solicitud</li>
+                            <li><span style="background-color: green; width: 20px; height: 20px; display: inline-block; border-radius: 50%;"></span> En Progreso</li>
+                            <li><span style="background-color: yellow; width: 20px; height: 20px; display: inline-block; border-radius: 50%;"></span> Pendiente de firma cliente</li>
+                            <li><span style="background-color: red; width: 20px; height: 20px; display: inline-block; border-radius: 50%;"></span> Otro estado</li>
+                        </ul>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
 
        <template id="portal_my_maintenance_order" name="My Maintenance Order">
             <t t-call="portal.portal_layout">
@@ -137,16 +158,17 @@
                                     </p>
                                 </div>
                             </div>
-                            <t t-if="maintenance_order.equipment_id.google_maps_link">
+                            <t t-if="maintenance_order.equipment_id.latitude">
                                 <div class="card shadow-sm mb-4">
                                     <div class="card-header">
-                                        <h5>Ubicación en Google Maps</h5>
+                                        <h5>Ubicación en el Mapa</h5>
                                     </div>
                                     <div class="card-body">
-                                        <iframe t-att-src="google_maps_src" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                        <div id="single-order-map-container" t-att-data-order-id="maintenance_order.id" style="width: 100%; height: 400px;"></div>
                                     </div>
                                 </div>
                             </t>
+
                         </div>
                         <div class="col-12 col-md-8">
                             <div class="card shadow-sm mb-4">
@@ -472,72 +494,85 @@
                 </t>
             </xpath>
         </template>
-        <template id="bizople_mobile_bottom_icon_bar" name="Bizople Mobile Bottom Icon Bar">
-        <div class="bizople-mbl-bottom-bar d-block d-xl-none bg-white fixed-bottom">
-            <div class="container">
-                <div class="row align-items-center justify-content-center menu_mobile">
-                    <!-- Home Icon -->
-                    <div class="col text-center">
-                        <div class="text-center">
-                            <a href="/" class="nav-link">
-                                <i class="bi bi-house text-secondary-perso"></i>
-                            </a>
-                        </div>
-                        <div class="text-center">
-                            <span class="text-secondary-perso">Home</span>
-                        </div>
-                    </div>
-                    <!-- My Account Icon -->
-                    <div class="col text-center">
-                        <div class="bizople-acc-user dropup">
-                            <a href="#" class="nav-link dropdown-toggle acc-dropdown" data-bs-toggle="dropdown">
-                                <i class="bi bi-person text-secondary-perso"></i>
-                            </a>
-                            <div class="dropdown-menu js_usermenu" role="menu">
-                                <!-- Logged-in User -->
-                                <t t-if="not user_id._is_public()">
-                                    <div class="main-content text-center">
-                                        <div class="text-center font-weight-bold">
-                                            <span t-out="user_id.name[:23] + '...' if user_id.name and len(user_id.name) > 25 else user_id.name" />
-                                        </div>
-                                        <a t-attf-href="/my/home" class="dropdown-item my-acc text-center">My Account</a>
-                                        <a id="o_logout" t-attf-href="/web/session/logout?redirect=/" class="dropdown-item text-center">Logout</a>
-                                    </div>
-                                </t>
-                                <!-- Public User -->
-                                <t t-else="">
-                                    <a href="/web/login" class="nav-link d-block">
-                                        <span class="text-dark text-uppercase">Sign in</span>
-                                    </a>
-                                    <a href="/web/signup" class="nav-link d-block">
-                                        <span class="text-dark text-uppercase">Register</span>
-                                    </a>
-                                </t>
+       <template id="bizople_mobile_bottom_icon_bar" name="Bizople Mobile Bottom Icon Bar">
+            <div class="bizople-mbl-bottom-bar d-block d-xl-none bg-white fixed-bottom">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center menu_mobile">
+                        <!-- Home Icon -->
+                        <div class="col text-center">
+                            <div class="text-center">
+                                <a href="/" class="nav-link">
+                                    <i class="bi bi-house text-secondary-perso"></i>
+                                </a>
                             </div>
                             <div class="text-center">
-                                <span class="text-secondary-perso">Account</span>
+                                <span class="text-secondary-perso">Home</span>
                             </div>
                         </div>
-                    </div>
-                    <!-- Maintenance Icon -->
-                    <div class="col text-center">
-                        <div class="text-center">
-                            <a href="/my/maintenance_orders" class="nav-link">
-                                <i class="bi bi-tools text-secondary-perso"></i>
-                            </a>
+                        <!-- My Account Icon -->
+                        <div class="col text-center">
+                            <div class="bizople-acc-user dropup">
+                                <a href="#" class="nav-link dropdown-toggle acc-dropdown" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person text-secondary-perso"></i>
+                                </a>
+                                <div class="dropdown-menu js_usermenu" role="menu">
+                                    <!-- Logged-in User -->
+                                    <t t-if="not user_id._is_public()">
+                                        <div class="main-content text-center">
+                                            <div class="text-center font-weight-bold">
+                                                <span t-out="user_id.name[:23] + '...' if user_id.name and len(user_id.name) > 25 else user_id.name" />
+                                            </div>
+                                            <a t-attf-href="/my/home" class="dropdown-item my-acc text-center">My Account</a>
+                                            <a id="o_logout" t-attf-href="/web/session/logout?redirect=/" class="dropdown-item text-center">Logout</a>
+                                        </div>
+                                    </t>
+                                    <!-- Public User -->
+                                    <t t-else="">
+                                        <a href="/web/login" class="nav-link d-block">
+                                            <span class="text-dark text-uppercase">Sign in</span>
+                                        </a>
+                                        <a href="/web/signup" class="nav-link d-block">
+                                            <span class="text-dark text-uppercase">Register</span>
+                                        </a>
+                                    </t>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-secondary-perso">Account</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <span class="text-secondary-perso">Maintenance</span>
+                        <!-- Maintenance Icon -->
+                        <div class="col text-center">
+                            <div class="text-center">
+                                <a href="/my/maintenance_orders" class="nav-link">
+                                    <i class="bi bi-tools text-secondary-perso"></i>
+                                </a>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-secondary-perso">Maintenance</span>
+                            </div>
+                        </div>
+                        <!-- Map Icon -->
+                        <div class="col text-center">
+                            <div class="text-center">
+                                <a href="/my/maintenance_map" class="nav-link">
+                                    <i class="bi bi-map text-secondary-perso"></i>
+                                </a>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-secondary-perso">Mapa</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </template>
+        </template>
 
          <template id="extend_main_layout" inherit_id="website.layout">
              <xpath expr="." position="inside">
                  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"/>
+                  <link href="https://openlayers.org/en/v6.5.0/build/ol.css" rel="stylesheet"/>
+                  <script src="https://openlayers.org/en/v6.5.0/build/ol.js" type="text/javascript"></script>
              </xpath>
             <xpath expr="//body" position="before">
                 <t t-call="maintence_extension.bizople_mobile_bottom_icon_bar"/>

@@ -22,4 +22,5 @@ class MaintenanceEquipment(models.Model):
     home = fields.Char(string='Domicilio')
     google_maps_link = fields.Char(string='Enlace a Google Maps')
     route_id = fields.Many2one('maintenance.route', string='Ruta')
-
+    latitude = fields.Float(string='Latitud')
+    longitude = fields.Float(string='Longitud')
